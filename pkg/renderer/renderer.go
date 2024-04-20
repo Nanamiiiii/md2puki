@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tsuzu/md2puki/pkg/urlutil"
+	"github.com/Nanamiiiii/md2puki/pkg/urlutil"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"

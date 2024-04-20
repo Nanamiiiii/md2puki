@@ -1,9 +1,10 @@
-module github.com/tsuzu/md2puki
+module github.com/Nanamiiiii/md2puki
 
-go 1.16
+go 1.22
+
+toolchain go1.22.2
 
 require (
-	github.com/gomarkdown/markdown v0.0.0-20210514010506-3b9f47219fe7 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/yuin/goldmark v1.3.8 // indirect
+	github.com/google/go-cmp v0.6.0
+	github.com/yuin/goldmark v1.7.1
 )
