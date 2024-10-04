@@ -48,6 +48,7 @@ func main() {
         }
     } else {
         scanner := bufio.NewScanner(os.Stdin)
+        scanner.Split(bufio.ScanBytes)
         for scanner.Scan() {
             bytes = append(bytes, scanner.Bytes()...)
         }
