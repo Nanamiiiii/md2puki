@@ -1,15 +1,16 @@
 package main
 
 import (
-    "flag"
+	"bufio"
+	"flag"
 	"fmt"
 	"os"
-    
-    "github.com/yuin/goldmark"
-    "github.com/yuin/goldmark/ast"
+
+	"github.com/Nanamiiiii/md2puki/pkg/renderer"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/text"
-	"github.com/Nanamiiiii/md2puki/pkg/renderer"
 )
 
 type Options struct {
@@ -29,25 +30,27 @@ func processOptions() *Options {
     var opts Options
 
     flag.StringVar(&opts.outfile, "out", "", "Output filename.")
+    flag.StringVar(&opts.inputfile, "in", "", "Input filename.")
     flag.Parse()
-
-    args := flag.Args()
-    if len(args) != 1 {
-        fmt.Fprintln(os.Stderr, "Invalid argument. Specify only one input filename.")
-        os.Exit(1)
-    }
-
-    opts.inputfile = args[0]
 
     return &opts
 }
 
 func main() {
     opts := processOptions()
+    var bytes []byte
+    var err error
 
-    bytes, err := os.ReadFile(opts.inputfile)
-    if err != nil {
-        fmt.Fprintln(os.Stderr, "Cannot read file: ", opts.inputfile);
+    if opts.inputfile != "" {
+        bytes, err = os.ReadFile(opts.inputfile)
+        if err != nil {
+            fmt.Fprintln(os.Stderr, "Cannot read file: ", opts.inputfile);
+        }
+    } else {
+        scanner := bufio.NewScanner(os.Stdin)
+        for scanner.Scan() {
+            bytes = append(bytes, scanner.Bytes()...)
+        }
     }
 
     if opts.outfile != "" { 
