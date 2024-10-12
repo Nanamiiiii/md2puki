@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+    mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/Nanamiiiii/md2puki/pkg/renderer"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -20,7 +21,7 @@ type Options struct {
 
 func parse(b []byte) ast.Node {
 	md := goldmark.New(
-		goldmark.WithExtensions(extension.NewTable()),
+		goldmark.WithExtensions(extension.NewTable(), mathjax.NewMathJax()),
 	)
 
 	return md.Parser().Parse(text.NewReader(b))

@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 
+    mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/Nanamiiiii/md2puki/pkg/urlutil"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
@@ -297,6 +298,12 @@ func (r *Renderer) tableRow(src []byte, n *east.TableRow) (string, error) {
 func (r *Renderer) taskCheckBox(src []byte, n *east.TaskCheckBox) (string, error) {
 	return "", unhandledError
 }
+func (r *Renderer) inlineMath(src []byte, n *mathjax.InlineMath) (string, error) {
+    return fmt.Sprintf("&mathjax{%s};", string(n.Text(src))), nil
+}
+func (r *Renderer) mathBlock(src []byte, n *mathjax.MathBlock) (string, error) {
+    return fmt.Sprintf("~&mathjax{%s};~", string(n.Text(src))), nil
+}
 
 func (r *Renderer) render(src []byte, n ast.Node) (s string, err error) {
 	switch n := n.(type) {
@@ -364,6 +371,10 @@ func (r *Renderer) render(src []byte, n ast.Node) (s string, err error) {
 		s, err = r.tableRow(src, n)
 	case *east.TaskCheckBox:
 		s, err = r.taskCheckBox(src, n)
+    case *mathjax.InlineMath:
+        s, err = r.inlineMath(src, n)
+    case *mathjax.MathBlock:
+        s, err = r.mathBlock(src, n)
 	}
 
 	switch err {
