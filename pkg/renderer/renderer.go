@@ -313,7 +313,6 @@ func (r *Renderer) mathBlock(src []byte, n *mathjax.MathBlock) (string, error) {
 	return fmt.Sprintf("~&mathjax{%s};~", string(n.Text(src))), nil
 }
 func (r *Renderer) wikilink(src []byte, n *wikilink.Node) (string, error) {
-	n.Dump(src, 0)
 	if n.Embed {
 		return fmt.Sprintf("&ref(./%s);", string(n.Target)), nil
 	} else {
