@@ -1,15 +1,17 @@
 package renderer
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
 
-    mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/Nanamiiiii/md2puki/pkg/urlutil"
+	mathjax "github.com/litao91/goldmark-mathjax"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
+	"go.abhg.dev/goldmark/wikilink"
 )
 
 var (
@@ -233,7 +235,13 @@ func (r *Renderer) footnoteList(src []byte, n *east.FootnoteList) (string, error
 	return "", unhandledError
 }
 func (r *Renderer) strikethrough(src []byte, n *east.Strikethrough) (string, error) {
-	return "", unhandledError
+	s, err := r.renderChildren(src, n, nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	return `%%` + s + `%%`, nil
 }
 func (r *Renderer) table(src []byte, n *east.Table) (string, error) {
 	alignments := n.Alignments
@@ -299,10 +307,28 @@ func (r *Renderer) taskCheckBox(src []byte, n *east.TaskCheckBox) (string, error
 	return "", unhandledError
 }
 func (r *Renderer) inlineMath(src []byte, n *mathjax.InlineMath) (string, error) {
-    return fmt.Sprintf("&mathjax{%s};", string(n.Text(src))), nil
+	return fmt.Sprintf("&mathjax{%s};", string(n.Text(src))), nil
 }
 func (r *Renderer) mathBlock(src []byte, n *mathjax.MathBlock) (string, error) {
-    return fmt.Sprintf("~&mathjax{%s};~", string(n.Text(src))), nil
+	return fmt.Sprintf("~&mathjax{%s};~", string(n.Text(src))), nil
+}
+func (r *Renderer) wikilink(src []byte, n *wikilink.Node) (string, error) {
+	n.Dump(src, 0)
+	if n.Embed {
+		return fmt.Sprintf("&ref(./%s);", string(n.Target)), nil
+	} else {
+		if n.ChildCount() == 1 {
+			label := nodeText(src, n.FirstChild())
+			if !bytes.Equal(label, n.Target) {
+				if n.Fragment != nil {
+					return fmt.Sprintf("[[%s>%s#%s]]", label, string(n.Target), string(n.Fragment)), nil
+				} else {
+					return fmt.Sprintf("[[%s>%s]]", label, string(n.Target)), nil
+				}
+			}
+		}
+		return fmt.Sprintf("[[%s]]", string(n.Target)), nil
+	}
 }
 
 func (r *Renderer) render(src []byte, n ast.Node) (s string, err error) {
@@ -371,10 +397,12 @@ func (r *Renderer) render(src []byte, n ast.Node) (s string, err error) {
 		s, err = r.tableRow(src, n)
 	case *east.TaskCheckBox:
 		s, err = r.taskCheckBox(src, n)
-    case *mathjax.InlineMath:
-        s, err = r.inlineMath(src, n)
-    case *mathjax.MathBlock:
-        s, err = r.mathBlock(src, n)
+	case *mathjax.InlineMath:
+		s, err = r.inlineMath(src, n)
+	case *mathjax.MathBlock:
+		s, err = r.mathBlock(src, n)
+	case *wikilink.Node:
+		s, err = r.wikilink(src, n)
 	}
 
 	switch err {
@@ -413,4 +441,23 @@ func processLines(s string, fn func(i int, s string) string) string {
 	}
 
 	return strings.Join(split, "\n")
+}
+
+func nodeText(src []byte, n ast.Node) []byte {
+	var buf bytes.Buffer
+	writeNodeText(src, &buf, n)
+	return buf.Bytes()
+}
+
+func writeNodeText(src []byte, dst io.Writer, n ast.Node) {
+	switch n := n.(type) {
+	case *ast.Text:
+		_, _ = dst.Write(n.Segment.Value(src))
+	case *ast.String:
+		_, _ = dst.Write(n.Value)
+	default:
+		for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+			writeNodeText(src, dst, c)
+		}
+	}
 }
