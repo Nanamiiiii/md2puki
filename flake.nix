@@ -34,7 +34,7 @@
 
             subPackages = [ "cmd/md2puki" ];
 
-            vendorHash = "sha256-P+itOTHU9mtHxZ5SI/Z0kH/yCN/bVBBNMt8UKYT7WDQ=";
+            vendorHash = "sha256-tErz6GXAJv1wf84IV8fezqgLCGAZIrIu52xpkiQNfzc=";
 
             meta = {
               description = "Markdown to Pukiwiki notation converter";
@@ -47,6 +47,14 @@
         apps.md2puki = {
           type = "app";
           program = "${self.packages.${system}.md2puki}/bin/md2puki";
+        };
+
+        devShells = {
+          default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              go
+            ];
+          };
         };
 
         formatter = treefmt-nix.lib.mkWrapper pkgs {

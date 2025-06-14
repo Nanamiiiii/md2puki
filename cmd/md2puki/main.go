@@ -12,6 +12,7 @@ import (
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/text"
+	"go.abhg.dev/goldmark/frontmatter"
 	"go.abhg.dev/goldmark/wikilink"
 )
 
@@ -22,7 +23,7 @@ type Options struct {
 
 func parse(b []byte) ast.Node {
 	md := goldmark.New(
-		goldmark.WithExtensions(extension.NewTable(), extension.Strikethrough, mathjax.NewMathJax(), &wikilink.Extender{Resolver: nil}),
+		goldmark.WithExtensions(extension.NewTable(), extension.Strikethrough, mathjax.NewMathJax(), &wikilink.Extender{Resolver: nil}, &frontmatter.Extender{}),
 	)
 
 	return md.Parser().Parse(text.NewReader(b))
