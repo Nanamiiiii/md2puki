@@ -143,18 +143,20 @@ func (r *Renderer) htmlBlock(src []byte, n *ast.HTMLBlock) (string, error) {
 	return "", unhandledError
 }
 func (r *Renderer) heading(src []byte, n *ast.Heading) (string, error) {
-	level := n.Level
-	if level > 3 {
-		level = 3
-	}
-
 	g, err := r.renderChildren(src, n, nil)
 
 	if err != nil {
 		return "", err
 	}
 
-	return strings.Repeat("*", level) + " " + g, nil
+	level := n.Level
+
+	if level <= 3 {
+		return strings.Repeat("*", level) + " " + g, nil
+	} else {
+		baseFontSize := 16
+		return fmt.Sprintf(`&br;&size(%d){''%s''};&br;`, baseFontSize-((level-4)*2), g), nil
+	}
 }
 func (r *Renderer) image(src []byte, n *ast.Image) (string, error) {
 	return fmt.Sprintf("&ref(%s);", urlutil.EscapeURL(string(n.Destination))), nil
