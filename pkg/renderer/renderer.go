@@ -309,10 +309,14 @@ func (r *Renderer) taskCheckBox(src []byte, n *east.TaskCheckBox) (string, error
 	return "", unhandledError
 }
 func (r *Renderer) inlineMath(src []byte, n *mathjax.InlineMath) (string, error) {
-	return fmt.Sprintf("&mathjax{%s};", string(n.Text(src))), nil
+	return fmt.Sprintf("$%s$", string(n.Text(src))), nil
 }
 func (r *Renderer) mathBlock(src []byte, n *mathjax.MathBlock) (string, error) {
-	return fmt.Sprintf("~&mathjax{%s};~", string(n.Text(src))), nil
+	res := make([]string, 0, n.Lines().Len())
+	for _, l := range n.Lines().Sliced(0, n.Lines().Len()) {
+		res = append(res, string(l.Value(src)))
+	}
+	return fmt.Sprintf("$$\n%s$$", strings.Join(res, "")), nil
 }
 func (r *Renderer) wikilink(src []byte, n *wikilink.Node) (string, error) {
 	if n.Embed {
