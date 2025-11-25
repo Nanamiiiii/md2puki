@@ -28,7 +28,7 @@
         packages = {
           md2puki = pkgs.buildGoModule (finalAttrs: {
             pname = "md2puki";
-            version = "0.2.5";
+            version = "0.3.0";
 
             src = ./.;
 
