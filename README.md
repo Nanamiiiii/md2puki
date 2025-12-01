@@ -94,7 +94,7 @@ EOF
 - Link
 - Image
 - Table
-    - Now Support Partially
+    - Partially support
 - Block Quote
 - Bold
 - Italic
