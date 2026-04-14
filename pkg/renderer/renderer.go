@@ -203,7 +203,7 @@ func (r *Renderer) text(src []byte, n *ast.Text) (string, error) {
 	s := string(n.Segment.Value(src))
 
 	if n.HardLineBreak() || n.SoftLineBreak() {
-		s = s + "\n"
+		s = s + "~\n"
 	}
 
 	return s, nil
