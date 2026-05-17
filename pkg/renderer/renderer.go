@@ -155,7 +155,7 @@ func (r *Renderer) heading(src []byte, n *ast.Heading) (string, error) {
 		return strings.Repeat("*", level) + " " + g, nil
 	} else {
 		baseFontSize := 16
-		return fmt.Sprintf(`&br;&size(%d){''%s''};&br;`, baseFontSize-((level-4)*2), g), nil
+		return fmt.Sprintf("\n" + `&size(%d){''%s''};&br;`, baseFontSize-((level-4)*2), g), nil
 	}
 }
 func (r *Renderer) image(src []byte, n *ast.Image) (string, error) {
