@@ -11,6 +11,20 @@
     };
   };
 
+  nixConfig = {
+    extra-substituters = [
+      "https://nix-cache.myuu.dev/packages"
+      "https://nix-community.cachix.org"
+      "https://cache.numtide.com"
+    ];
+
+    extra-trusted-public-keys = [
+      "nix-cache.myuu.dev-1:2lAuxMiua4hEYRgGu3JXHafpZrHprrQi+TmrQIKJ6+E="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+    ];
+  };
+
   outputs =
     {
       self,
@@ -28,7 +42,7 @@
         packages = {
           md2puki = pkgs.buildGoModule (finalAttrs: {
             pname = "md2puki";
-            version = "0.3.1";
+            version = "0.3.3";
 
             src = ./.;
 
