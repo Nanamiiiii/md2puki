@@ -25,26 +25,34 @@
         pkgs = import nixpkgs { inherit system; };
       in
       {
-        packages.default = pkgs.buildGoModule (finalAttrs: {
-          pname = "md2puki";
-          version = "0.3.1";
+        packages = {
+          md2puki = pkgs.buildGoModule (finalAttrs: {
+            pname = "md2puki";
+            version = "0.3.1";
 
-          src = ./.;
+            src = ./.;
 
-          subPackages = [ "cmd/md2puki" ];
+            subPackages = [ "cmd/md2puki" ];
 
-          vendorHash = "sha256-tErz6GXAJv1wf84IV8fezqgLCGAZIrIu52xpkiQNfzc=";
+            vendorHash = "sha256-j2XenbE5d8JlJW3eRrFUz4arYYQBtdGIr0sHyKi37a4=";
 
-          meta = {
-            description = "Markdown to Pukiwiki notation converter";
-            homepage = "https://github.com/Nanamiiiii/md2puki";
-            mainProgram = "md2puki";
+            meta = {
+              description = "Markdown to Pukiwiki notation converter";
+              homepage = "https://github.com/Nanamiiiii/md2puki";
+              mainProgram = "md2puki";
+            };
+          });
+
+          default = self.packages.${system}.md2puki;
+        };
+
+        apps = {
+          md2puki = {
+            type = "app";
+            program = "${self.packages.${system}.md2puki}/bin/md2puki";
           };
-        });
 
-        apps.md2puki = {
-          type = "app";
-          program = "${self.packages.${system}.md2puki}/bin/md2puki";
+          default = self.apps.${system}.md2puki;
         };
 
         devShells = {

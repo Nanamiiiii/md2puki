@@ -1,0 +1,55 @@
+name: Build and populate binary cache
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and populate (${{ matrix.system }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - system: x86_64-linux
+            runner: ubuntu-24.04
+          - system: aarch64-linux
+            runner: ubuntu-24.04-arm
+          - system: aarch64-darwin
+            runner: macos-26
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: nix build .#packages.${{ matrix.system }}.md2puki --print-build-logs
+
+      - name: Populate S3 binary cache
+        if: github.event_name == 'push'
+        env:
+          S3_STORE_URL: ${{ secrets.S3_STORE_URL }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NIX_SIGNING_KEY: ${{ secrets.NIX_SIGNING_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${S3_STORE_URL:?Set the S3_STORE_URL repository variable}"
+          : "${AWS_ACCESS_KEY_ID:?Set the AWS_ACCESS_KEY_ID repository secret}"
+          : "${AWS_SECRET_ACCESS_KEY:?Set the AWS_SECRET_ACCESS_KEY repository secret}"
+          : "${NIX_SIGNING_KEY:?Set the NIX_SIGNING_KEY repository secret}"
+
+          umask 077
+          key_file=/tmp/nix-signing-key
+          trap 'rm -f "$key_file"' EXIT
+          printf '%s\n' "$NIX_SIGNING_KEY" > "$key_file"
+          nix copy --to "$S3_STORE_URL" ./result
