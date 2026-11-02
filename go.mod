@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/google/go-cmp v0.7.0
-	github.com/yuin/goldmark v1.8.6
+	github.com/yuin/goldmark v1.8.7
 )
 
 require github.com/litao91/goldmark-mathjax v0.0.0-20210217064022-a43cf739a50f
